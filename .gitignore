@@ -1,1 +1,20 @@
-node_modules/ dist/ .env .env.local .env.example __pycache__/ *.pyc *.sqlite3 
+# Node
+node_modules/
+dist/
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+venv/
+env/
+*.sqlite3
+
+# Env files (never commit any env file, including the example template)
+.env
+.env.local
+.env.example
+
+# Editor
+.vscode/
+.idea/
