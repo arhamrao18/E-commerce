@@ -1,10 +1,12 @@
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { StoreProvider } from "./context/StoreContext";
+import { AuthProvider } from "./context/AuthContext";
+import { RequireCustomer, RequireAdmin } from "./components/auth/ProtectedRoute";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 import Toast from "./components/ui/Toast";
-
+ 
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
@@ -13,7 +15,8 @@ import Wishlist from "./pages/Wishlist";
 import Checkout from "./pages/Checkout";
 import Auth from "./pages/Auth";
 import Account from "./pages/Account";
-
+ 
+import AdminLogin from "./pages/admin/AdminLogin";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminProducts from "./pages/admin/Products";
@@ -30,7 +33,7 @@ import AdminNotifications from "./pages/admin/Notifications";
 import AdminActivityLog from "./pages/admin/ActivityLog";
 import AdminRoles from "./pages/admin/Roles";
 import AdminSettings from "./pages/admin/Settings";
-
+ 
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -38,7 +41,7 @@ function ScrollToTop() {
   }, [pathname]);
   return null;
 }
-
+ 
 function StorefrontLayout({ children }) {
   return (
     <div className="flex min-h-screen flex-col bg-porcelain">
@@ -48,10 +51,11 @@ function StorefrontLayout({ children }) {
     </div>
   );
 }
-
+ 
 export default function App() {
   return (
     <BrowserRouter>
+      <AuthProvider>
       <StoreProvider>
         <ScrollToTop />
         <Routes>
@@ -61,14 +65,17 @@ export default function App() {
           <Route path="/product/:slug" element={<StorefrontLayout><ProductDetail /></StorefrontLayout>} />
           <Route path="/cart" element={<StorefrontLayout><Cart /></StorefrontLayout>} />
           <Route path="/wishlist" element={<StorefrontLayout><Wishlist /></StorefrontLayout>} />
-          <Route path="/checkout" element={<StorefrontLayout><Checkout /></StorefrontLayout>} />
+          <Route path="/checkout" element={<StorefrontLayout><RequireCustomer><Checkout /></RequireCustomer></StorefrontLayout>} />
           <Route path="/login" element={<StorefrontLayout><Auth mode="login" /></StorefrontLayout>} />
           <Route path="/register" element={<StorefrontLayout><Auth mode="register" /></StorefrontLayout>} />
-          <Route path="/account" element={<StorefrontLayout><Account /></StorefrontLayout>} />
-          <Route path="/account/orders" element={<StorefrontLayout><Account /></StorefrontLayout>} />
-
-          {/* Admin */}
-          <Route path="/admin" element={<AdminLayout />}>
+          <Route path="/account" element={<StorefrontLayout><RequireCustomer><Account /></RequireCustomer></StorefrontLayout>} />
+          <Route path="/account/orders" element={<StorefrontLayout><RequireCustomer><Account /></RequireCustomer></StorefrontLayout>} />
+ 
+          {/* Admin login (separate page, not linked anywhere on the storefront) */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+ 
+          {/* Admin (staff roles only) */}
+          <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
             <Route index element={<AdminDashboard />} />
             <Route path="products" element={<AdminProducts />} />
             <Route path="categories" element={<AdminCategories />} />
@@ -88,6 +95,8 @@ export default function App() {
         </Routes>
         <Toast />
       </StoreProvider>
+      </AuthProvider>
     </BrowserRouter>
   );
 }
+ 
